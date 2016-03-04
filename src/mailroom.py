@@ -33,3 +33,8 @@ def valid_amount(user_input):
     if not match:
         return 'Invalid amount.'
     return float(match.group('amount'))
+
+
+def update_donor_donations(name, amount, data):
+    donations_list = data.setdefault(name, [])
+    donations_list.append(amount)

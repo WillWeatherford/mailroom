@@ -47,6 +47,11 @@ TEST_UPDATE = [
 ]
 
 
+DONOR_DONATIONS = [
+    ('Bill Gates', 455, {'Bill Gates': [455]}),
+    ('Jane Doe', 100, {'Jane Doe': [100]}),
+]
+
 @pytest.mark.parametrize('user_input, output', MAIN_MENU)
 def test_main_menu(user_input, output):
     """Test main menu function."""
@@ -73,3 +78,12 @@ def test_amount(user_input, output):
     """Test amount validation function."""
     from mailroom import valid_amount
     assert valid_amount(user_input) == output
+
+
+@pytest.mark.parametrize('input_name, input_amount, data', DONOR_DONATIONS)
+def test_update_donor_donations(input_name, input_amount, data):
+    """Test the update of a donor's donation value."""
+    from mailroom import update_donor_donations
+    test_data = {}
+    update_donor_donations(input_name, input_amount, test_data)
+    assert data == test_data
