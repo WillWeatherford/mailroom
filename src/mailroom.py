@@ -72,8 +72,8 @@ def format_donation_amount(amount):
 
 
 def print_email(name, amount):
-    print(EMAIL_TEMPLATE.format(name=name, amount=format_donation_amount(amount)))
-    return
+    return EMAIL_TEMPLATE.format(name=name,
+                                 amount=format_donation_amount(amount))
 
 
 def exit_menu():
@@ -82,20 +82,34 @@ def exit_menu():
 
 
 def report():
+    rows = []
     for donor, amounts in DATA.items():
         amount_string = ' '.join([format_donation_amount(a) for a in amounts])
-        print(': '.join((donor, amount_string)))
-    return False
+        row = ': '.join((donor, amount_string))
+        rows.append(row)
+    result = menu('\n'.join(rows), None)
+    return result
 
 
 def send():
     result = menu(SEND_MENU_PROMPT, validate_name_menu)
-    return result
+    print('Menu with name menu prompt returns {}'.format(result))
+    return False
 
 
 def name():
     result = menu(AMOUNT_PROMPT, valid_amount)
+    print('Menu with amount menu prompt returns {}'.format(result))
     return result
+
+
+def amount():
+    name = WORKING_DONOR_INFO['name']
+    amount = WORKING_DONOR_INFO['amount']
+    update_donor_donations(name, amount, DATA)
+    email = print_email(name, amount)
+    menu(email, None)
+    return True
 
 
 def list_donors():
@@ -107,17 +121,17 @@ def list_donors():
 def menu(prompt, validator):
     while True:
         user_input = input(prompt)
-        valid_command = validator(user_input)
-        if valid_command:
-            func = COMMANDS[valid_command]
-            result = func()
-            if result:
-                break
+        if validator:
+            valid_command = validator(user_input)
+            if valid_command:
+                func = COMMANDS[valid_command]
+                result = func()
+                if result:
+                    return result
+            else:
+                print('Invalid command.')
         else:
-            print('Invalid command.')
-
-
-
+            break
 
 
 COMMANDS = {
