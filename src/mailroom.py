@@ -9,9 +9,35 @@ DATA = {
 
 WORKING_DONOR_INFO = {'name': '', 'amount': 0}
 
-MAIN_MENU_PROMPT = 'This is the main menu.\n S R X\n'
-SEND_MENU_PROMPT = 'This is the send menu.\n list or Enter a Name'
-AMOUNT_PROMPT = 'Enter an amount'
+MAIN_MENU_PROMPT = """
+Welcome to Mailroom Madness!
+
+MAIN MENU
+
+S: Send an email to a donor.
+R: Print report of all donations so far.
+X: Exit from the program.
+"""
+SEND_MENU_PROMPT = """
+SEND MENU
+
+Register a new donation and send an email to the donor.
+
+list: List all existing donors.
+X: Exit to main menu.
+
+Or enter a donor's name.
+"""
+
+DONOR_LIST = """
+Here are all the nice people who have donated so far:
+
+{}
+"""
+
+AMOUNT_PROMPT = """
+Enter the amount donated by {}:
+"""
 
 EXIT_PATTERN = r'(?P<exit>x|exit)'
 MAIN_MENU_PATTERN = r'^(?P<send>s(end)?)|(?P<report>r(eport)?)|' + EXIT_PATTERN
@@ -70,7 +96,7 @@ def update_donor_donations(name, amount, data):
 
 
 def format_donation_amount(amount):
-    """Format the donation amount into $ and decimal."""
+    """Format the donation amount into $ and 2 decimal places."""
     dollar_format = '${:.2f}'
     return dollar_format.format(amount)
 
@@ -81,7 +107,6 @@ def print_email(name, amount):
 
 
 def exit_menu():
-    print('Exiting...')
     return True
 
 
@@ -115,12 +140,14 @@ def send():
     return False
 
 
-def name():
-    result = menu(AMOUNT_PROMPT, valid_amount)
+def enter_amount():
+    donor_name = WORKING_DONOR_INFO['name']
+    amount_prompt = AMOUNT_PROMPT.format(donor_name)
+    result = menu(amount_prompt, valid_amount)
     return result
 
 
-def amount():
+def display_email():
     name = WORKING_DONOR_INFO['name']
     amount = WORKING_DONOR_INFO['amount']
     update_donor_donations(name, amount, DATA)
@@ -130,7 +157,7 @@ def amount():
 
 
 def list_donors():
-    donor_output = '\n'.join(DATA.keys())
+    donor_output = DONOR_LIST.format('\n'.join(DATA.keys()))
     menu(donor_output, None)
     return False
 
@@ -154,8 +181,8 @@ def menu(prompt, validator):
 COMMANDS = {
     'report': report,
     'send': send,
-    'name': name,
-    'amount': amount,
+    'name': enter_amount,
+    'amount': display_email,
     'exit': exit_menu,
     'list': list_donors,
 }
