@@ -20,7 +20,8 @@ AMOUNT_PATTERN = r'^(?P<amount>[1-9^0][0-9]*.?[0-9]{,2})|' + EXIT_PATTERN
 EMAIL_TEMPLATE = """
 Dear {name},
 
-    Thank you for your donation of {amount}.  We really need it.
+    Thank you for your donation of {amount} to The Friends of The Large Hadon
+    Collider really need it.
 
     Sincerely,
 
