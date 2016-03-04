@@ -43,15 +43,24 @@ TEST_AMOUNT = [
 
 
 TEST_UPDATE = [
-    ('Bill Gates', {}),
-    ('Bill Gates', {'Bill Gates': 5}),
-    ('Bill Gates', {'Bill Gates': 0.00})
+    ({}, 'Bill Gates'),
+    ({'Bill Gates': 5}, 'Bill Gates'),
+    ({'Bill Gates': 0.00}, 'Bill Gates')
 ]
 
 
 DONOR_DONATIONS = [
-    ('Bill Gates', 455, {'Bill Gates': [455]}),
-    ('Jane Doe', 100, {'Jane Doe': [100]}),
+    ({'Bill Gates': [455]}, 'Bill Gates', 455),
+    ({'Jane Doe': [100]}, 'Jane Doe', 100),
+]
+
+
+DATA_TABLE = [
+    ('./donors_test_file.json',
+    {
+    "Bill Gates": ["5000", "4000.50", "1.0"],
+    "Cris Ewing": ["25", "0.50", "1.0"],
+    })
 ]
 
 
@@ -69,10 +78,10 @@ def test_name_menu(user_input, output):
     assert validate_name_menu(user_input) == output
 
 
-@pytest.mark.parametrize('name, data', TEST_UPDATE)
-def test_update_name_data(name, data):
+@pytest.mark.parametrize('data, name', TEST_UPDATE)
+def test_update_name_data(data, name):
     from mailroom import update_donor_data
-    update_donor_data(name, 0, data)
+    update_donor_data(data, name)
     assert name in data.keys()
 
 
@@ -83,10 +92,17 @@ def test_amount(user_input, output):
     assert valid_amount(user_input) == output
 
 
-@pytest.mark.parametrize('input_name, input_amount, data', DONOR_DONATIONS)
-def test_update_donor_donations(input_name, input_amount, data):
+@pytest.mark.parametrize('data, input_name, input_amount', DONOR_DONATIONS)
+def test_update_donor_donations(data, input_name, input_amount):
     """Test the update of a donor's donation value."""
     from mailroom import update_donor_data
     test_data = {}
-    update_donor_data(input_name, input_amount, test_data)
+    update_donor_data(test_data, input_name, input_amount)
     assert data == test_data
+
+
+@pytest.mark.parametrize('file_name, data', DATA_TABLE)
+def test_donor_file(file_name, data):
+    """Test using the JSON file for storing donor data."""
+    from mailroom import read_donor_data
+    assert read_donor_data(file_name) == data

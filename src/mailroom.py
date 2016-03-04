@@ -1,11 +1,8 @@
 """Interactive command-line program to send emails to their donors."""
 import re
+import json
+import io
 
-
-DATA = {
-    'Bill Gates': [5000, 4000.50, 1.0],
-    'Cris Ewing': [25, .50, 1.0],
-}
 
 WORKING_DONOR_INFO = {'name': '', 'amount': 0}
 
@@ -23,7 +20,7 @@ SEND MENU
 
 Register a new donation and send an email to the donor.
 
-list: List all existing donors.
+L: List all existing donors.
 X: Exit to main menu.
 
 Or enter a donor's name.
@@ -39,29 +36,32 @@ AMOUNT_PROMPT = """
 Enter the amount donated by {}:
 """
 
-EXIT_PATTERN = r'(?P<exit>x|exit)'
-MAIN_MENU_PATTERN = r'^(?P<send>s(end)?)|(?P<report>r(eport)?)|' + EXIT_PATTERN
-NAME_MENU_PATTERN = r'^(?P<name>[a-z]*\s[a-z]*)|(?P<list>list)|' + EXIT_PATTERN
-AMOUNT_PATTERN = r'^(?P<amount>[1-9^0][0-9]*.?[0-9]{,2})|' + EXIT_PATTERN
+EXIT_RGX = r'(?P<exit>x|exit)'
+MAIN_MENU_RGX = r'^(?P<send>s(end)?)|(?P<report>r(eport)?)|' + EXIT_RGX
+NAME_MENU_RGX = r'^(?P<name>[a-z]*\s[a-z]*)|(?P<list>l(ist)?)|' + EXIT_RGX
+AMOUNT_RGX = r'^(?P<amount>[1-9^0][0-9]*.?[0-9]{,2})|' + EXIT_RGX
 
 EMAIL_TEMPLATE = """
 Dear {name},
 
-    Thank you for your donation of {amount} to The Friends of The Large Hadon
-    Collider really need it.
+    Thank you for your donation of {amount} to The Friends of The Large Hadron
+    Collider. We really need it.
 
     Sincerely,
 
-    Someone
+    Dr. Evil
 """
 
 DONOR_NAME, TOTAL, NUM, AVG = ('Donor Name', 'Total Donated',
                                'Donations', 'Average Donation')
 
 
+DONORS_JSON = './donors.json'
+
+
 def validate_main_menu(user_input):
     """Match the user input from main menu."""
-    match = re.match(MAIN_MENU_PATTERN, user_input, flags=re.IGNORECASE)
+    match = re.match(MAIN_MENU_RGX, user_input, flags=re.IGNORECASE)
     if not match:
         return False
     return match.lastgroup
@@ -69,16 +69,17 @@ def validate_main_menu(user_input):
 
 def validate_name_menu(user_input):
     """Match the user input from name menu."""
-    match = re.match(NAME_MENU_PATTERN, user_input, flags=re.IGNORECASE)
+    match = re.match(NAME_MENU_RGX, user_input, flags=re.IGNORECASE)
     if not match:
         return False
-    WORKING_DONOR_INFO['name'] = str(match.group('name').title())
+    WORKING_DONOR_INFO['name'] = str(match.group('name')).title()
     return match.lastgroup
 
 
 def valid_amount(user_input):
     """Return float if user has entered valid amount; else 'Invalid amount'."""
-    match = re.match(AMOUNT_PATTERN, user_input, flags=re.IGNORECASE)
+    # Validator info avialable in the regex docs for the re module.
+    match = re.match(AMOUNT_RGX, user_input, flags=re.IGNORECASE)
     if not match:
         return False
     amount = match.group('amount') or 0
@@ -86,13 +87,26 @@ def valid_amount(user_input):
     return match.lastgroup
 
 
-def update_donor_data(name, amount=0, data=None):
+def update_donor_data(data, name, amount=0):
     """Check if name is database; if not, add name and donation amount."""
-    if data is None:
-        data = DATA
     donations_list = data.setdefault(name, [])
     if amount:
         donations_list.append(amount)
+
+
+def read_donor_data(file_name):
+    """Return dictionary from reading JSON file."""
+    data_file = io.open(file_name)
+    data = json.load(data_file)
+    data_file.close()
+    return data
+
+
+def write_donor_data(data, file_name):
+    """Write data from dictionary to file."""
+    data_file = io.open(file_name, 'w')
+    data = json.dump(data, data_file)
+    data_file.close()
 
 
 def format_donation_amount(amount):
@@ -121,6 +135,7 @@ def make_report_header():
 
 def format_donor_row(donor_name, donations):
     """Format donor row in report print out."""
+    donations = list(map(float, donations))
     total = format_donation_amount(sum(donations))
     num = len(donations)
     avg = format_donation_amount(sum(donations) / float(num))
@@ -133,10 +148,9 @@ def format_donor_row(donor_name, donations):
 def report():
     """Assemble and display the report of current donors; wait for continue."""
     rows = [format_donor_row(donor_name, donations)
-            for donor_name, donations in DATA.items()]
+            for donor_name, donations in read_donor_data(DONORS_JSON).items()]
     rows.insert(0, make_report_header())
     rows.insert(1, '\t' + '-' * 20 * 4)
-    rows.insert(-1, '')
     menu('\n'.join(rows), None)
     return False
 
@@ -159,9 +173,14 @@ def display_email():
     """Assemble and display donor thank you email; wait for continue."""
     name = WORKING_DONOR_INFO['name']
     amount = WORKING_DONOR_INFO['amount']
-    update_donor_data(name, amount)
+
+    current_data = read_donor_data(DONORS_JSON)
+    update_donor_data(current_data, name, amount)
+    write_donor_data(current_data, DONORS_JSON)
+
     email = format_email(name, amount)
     menu(email, None)
+
     WORKING_DONOR_INFO['name'] = ''
     WORKING_DONOR_INFO['amount'] = 0
     return True
@@ -169,7 +188,8 @@ def display_email():
 
 def list_donors():
     """Assemble and display list of current donor names."""
-    donor_output = DONOR_LIST.format('\n'.join(DATA.keys()))
+    donor_data = read_donor_data(DONORS_JSON)
+    donor_output = DONOR_LIST.format('\n'.join(donor_data.keys()))
     menu(donor_output, None)
     return False
 
