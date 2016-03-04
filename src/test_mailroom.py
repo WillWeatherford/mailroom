@@ -10,33 +10,35 @@ MAIN_MENU = [
     ('R', 'report'),
     ('X', 'exit'),
     # ('Report on latest pokemon news', 'Invalid entry.'),
-    ('blerg', 'Invalid entry.'),
-    ('398fn2_*3j3s2', 'Invalid entry.'),
-    ('', 'Invalid entry.'),
+    ('blerg', False),
+    ('398fn2_*3j3s2', False),
+    ('', False),
 ]
 
 TEST_NAME = [
+    ('x', 'exit'),
     ('list', 'list'),
-    ('Bill Gates', 'Bill Gates'),
-    ('BILL Gates', 'Bill Gates'),
-    ('bill gates', 'Bill Gates'),
-    ('Joe', 'Invalid name.'),
-    ('0', 'Invalid name.'),
-    ('B1ll G4t3s', 'Invalid name.'),
-    ('', 'Invalid name.'),
+    ('Bill Gates', 'name'),
+    ('BILL Gates', 'name'),
+    ('bill gates', 'name'),
+    ('Joe', False),
+    ('0', False),
+    ('B1ll G4t3s', False),
+    ('', False),
 ]
 
 
 TEST_AMOUNT = [
+    ('x', 'exit'),
     ('5', 5.0),
     ('100', 100.0),
     ('100.0', 100.0),
     ('33.33', 33.33),
     ('5.50', 5.50),
-    ('33.333333', 'Invalid amount.'),
-    ('a thousand simoleans', 'Invalid amount.'),
-    ('0', 'Invalid amount.'),
-    ('', 'Invalid amount.'),
+    ('33.333333', False),
+    ('a thousand simoleans', False),
+    ('0', False),
+    ('', False),
 ]
 
 
@@ -52,18 +54,19 @@ DONOR_DONATIONS = [
     ('Jane Doe', 100, {'Jane Doe': [100]}),
 ]
 
+
 @pytest.mark.parametrize('user_input, output', MAIN_MENU)
 def test_main_menu(user_input, output):
     """Test main menu function."""
-    from mailroom import main_menu
-    assert main_menu(user_input) == output
+    from mailroom import validate_main_menu
+    assert validate_main_menu(user_input) == output
 
 
 @pytest.mark.parametrize('user_input, output', TEST_NAME)
 def test_name_menu(user_input, output):
     """Test name_menu validation function."""
-    from mailroom import name_menu
-    assert name_menu(user_input) == output
+    from mailroom import validate_name_menu
+    assert validate_name_menu(user_input) == output
 
 
 @pytest.mark.parametrize('name, data', TEST_UPDATE)
