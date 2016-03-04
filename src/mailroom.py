@@ -86,9 +86,11 @@ def valid_amount(user_input):
     return match.lastgroup
 
 
-def update_donor_data(name, amount=0):
+def update_donor_data(name, amount=0, data=None):
     """Check if name is database; if not, add name and donation amount."""
-    donations_list = DATA.setdefault(name, [])
+    if data is None:
+        data = DATA
+    donations_list = data.setdefault(name, [])
     if amount:
         donations_list.append(amount)
 

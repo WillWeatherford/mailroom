@@ -44,8 +44,8 @@ TEST_AMOUNT = [
 
 TEST_UPDATE = [
     ('Bill Gates', {}),
-    ('Bill Gates', {'Bill Gates': []}),
-    ('Bill Gates', {'Bill Gates': [0.00, 1000.00]})
+    ('Bill Gates', {'Bill Gates': 5}),
+    ('Bill Gates', {'Bill Gates': 0.00})
 ]
 
 
@@ -71,8 +71,8 @@ def test_name_menu(user_input, output):
 
 @pytest.mark.parametrize('name, data', TEST_UPDATE)
 def test_update_name_data(name, data):
-    from mailroom import update_name_in_database
-    update_name_in_database(name, data)
+    from mailroom import update_donor_data
+    update_donor_data(name, 0, data)
     assert name in data.keys()
 
 
@@ -86,7 +86,7 @@ def test_amount(user_input, output):
 @pytest.mark.parametrize('input_name, input_amount, data', DONOR_DONATIONS)
 def test_update_donor_donations(input_name, input_amount, data):
     """Test the update of a donor's donation value."""
-    from mailroom import update_donor_donations
+    from mailroom import update_donor_data
     test_data = {}
-    update_donor_donations(input_name, input_amount, test_data)
+    update_donor_data(input_name, input_amount, test_data)
     assert data == test_data
