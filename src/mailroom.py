@@ -72,7 +72,7 @@ def validate_name_menu(user_input):
     match = re.match(NAME_MENU_PATTERN, user_input, flags=re.IGNORECASE)
     if not match:
         return False
-    WORKING_DONOR_INFO['name'] = match.group('name')
+    WORKING_DONOR_INFO['name'] = str(match.group('name').title())
     return match.lastgroup
 
 
@@ -102,21 +102,25 @@ def format_donation_amount(amount):
 
 
 def format_email(name, amount):
+    """Format the email with correct donor name and amount."""
     return EMAIL_TEMPLATE.format(name=name,
                                  amount=format_donation_amount(amount))
 
 
 def exit_menu():
+    """User exit out of current menu & out of the module if at main menu."""
     return True
 
 
 def make_report_header():
+    """Format the top row of report print output."""
     cells = ['{:>20}'.format(n) for n in (TOTAL, NUM, AVG)]
     cells.insert(0, '\t{:<20}'.format(DONOR_NAME))
     return ''.join(cells)
 
 
 def format_donor_row(donor_name, donations):
+    """Format donor row in report print out."""
     total = format_donation_amount(sum(donations))
     num = len(donations)
     avg = format_donation_amount(sum(donations) / float(num))
@@ -127,6 +131,7 @@ def format_donor_row(donor_name, donations):
 
 
 def report():
+    """Assemble and display the report of current donors; wait for continue."""
     rows = [format_donor_row(donor_name, donations)
             for donor_name, donations in DATA.items()]
     rows.insert(0, make_report_header())
@@ -137,11 +142,13 @@ def report():
 
 
 def send():
+    """Display send menu prompt and wait for valid command."""
     menu(SEND_MENU_PROMPT, validate_name_menu)
     return False
 
 
 def enter_amount():
+    """Display donation amount prompt and wait for valid amount."""
     donor_name = WORKING_DONOR_INFO['name']
     amount_prompt = AMOUNT_PROMPT.format(donor_name)
     result = menu(amount_prompt, valid_amount)
@@ -149,6 +156,7 @@ def enter_amount():
 
 
 def display_email():
+    """Assemble and display donor thank you email; wait for continue."""
     name = WORKING_DONOR_INFO['name']
     amount = WORKING_DONOR_INFO['amount']
     update_donor_data(name, amount)
@@ -160,12 +168,14 @@ def display_email():
 
 
 def list_donors():
+    """Assemble and display list of current donor names."""
     donor_output = DONOR_LIST.format('\n'.join(DATA.keys()))
     menu(donor_output, None)
     return False
 
 
 def menu(prompt, validator):
+    """Prompt user, validate input and execute appriate function."""
     while True:
         user_input = input(prompt)
         if validator:
@@ -180,7 +190,7 @@ def menu(prompt, validator):
         else:
             break
 
-
+# This table associates valid command keywords to the correct menu functions.
 COMMANDS = {
     'report': report,
     'send': send,
