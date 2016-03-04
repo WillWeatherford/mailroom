@@ -1,3 +1,4 @@
+"""Interactive command-line program to send emails to their donors."""
 import re
 
 
@@ -27,6 +28,9 @@ Dear {name},
     Someone
 """
 
+DONOR_NAME, TOTAL, NUM, AVG = ('Donor Name', 'Total Donated',
+                               'Donations', 'Average Donation')
+
 
 def validate_main_menu(user_input):
     """Match the user input from main menu."""
@@ -46,7 +50,7 @@ def validate_name_menu(user_input):
 
 
 def valid_amount(user_input):
-    """Return float if user has entered valid amount; else 'Invalid amount.'"""
+    """Return float if user has entered valid amount; else 'Invalid amount'."""
     match = re.match(AMOUNT_PATTERN, user_input, flags=re.IGNORECASE)
     if not match:
         return False
@@ -77,29 +81,42 @@ def print_email(name, amount):
 
 
 def exit_menu():
-    print('Exiting')
+    print('Exiting...')
     return True
 
 
+def make_report_header():
+    cells = ['{:>20}'.format(n) for n in (TOTAL, NUM, AVG)]
+    cells.insert(0, '\t{:<20}'.format(DONOR_NAME))
+    return ''.join(cells)
+
+
+def format_donor_row(donor_name, donations):
+    total = format_donation_amount(sum(donations))
+    num = len(donations)
+    avg = format_donation_amount(sum(donations) / float(num))
+
+    cells = ['{:>20}'.format(n) for n in [total, num, avg]]
+    cells.insert(0, '\t{:<20}'.format(donor_name))
+    return ''.join(cells)
+
+
 def report():
-    rows = []
-    for donor, amounts in DATA.items():
-        amount_string = ' '.join([format_donation_amount(a) for a in amounts])
-        row = ': '.join((donor, amount_string))
-        rows.append(row)
-    result = menu('\n'.join(rows), None)
-    return result
+    rows = [format_donor_row(donor_name, donations)
+            for donor_name, donations in DATA.items()]
+    rows.insert(0, make_report_header())
+    rows.insert(1, '\t' + '-' * 20 * 4)
+    menu('\n'.join(rows), None)
+    return False
 
 
 def send():
-    result = menu(SEND_MENU_PROMPT, validate_name_menu)
-    print('Menu with name menu prompt returns {}'.format(result))
+    menu(SEND_MENU_PROMPT, validate_name_menu)
     return False
 
 
 def name():
     result = menu(AMOUNT_PROMPT, valid_amount)
-    print('Menu with amount menu prompt returns {}'.format(result))
     return result
 
 
@@ -113,8 +130,8 @@ def amount():
 
 
 def list_donors():
-    for donor in DATA:
-        print(donor)
+    donor_output = '\n'.join(DATA.keys())
+    menu(donor_output, None)
     return False
 
 
