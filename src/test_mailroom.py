@@ -57,10 +57,9 @@ DONOR_DONATIONS = [
 
 DATA_TABLE = [
     ('./donors_test_file.json',
-    {
-    "Bill Gates": ["5000", "4000.50", "1.0"],
-    "Cris Ewing": ["25", "0.50", "1.0"],
-    })
+     {"Bill Gates": ["5000", "4000.50", "1.0"],
+      "Cris Ewing": ["25", "0.50", "1.0"],
+      })
 ]
 
 
@@ -80,6 +79,7 @@ def test_name_menu(user_input, output):
 
 @pytest.mark.parametrize('data, name', TEST_UPDATE)
 def test_update_name_data(data, name):
+    """Test update of donor name and donation amount."""
     from mailroom import update_donor_data
     update_donor_data(data, name)
     assert name in data.keys()
