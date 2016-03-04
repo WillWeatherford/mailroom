@@ -30,14 +30,14 @@ TEST_NAME = [
 
 TEST_AMOUNT = [
     ('x', 'exit'),
-    ('5', 5.0),
-    ('100', 100.0),
-    ('100.0', 100.0),
-    ('33.33', 33.33),
-    ('5.50', 5.50),
-    ('33.333333', False),
+    ('5', 'amount'),
+    ('100', 'amount'),
+    ('100.0', 'amount'),
+    ('33.33', 'amount'),
+    ('5.50', 'amount'),
+    ('33.333333', 'amount'),
     ('a thousand simoleans', False),
-    ('0', False),
+    ('0', 'amount'),
     ('', False),
 ]
 
