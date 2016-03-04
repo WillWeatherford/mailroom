@@ -85,14 +85,11 @@ def valid_amount(user_input):
     return match.lastgroup
 
 
-def update_name_in_database(full_name, data):
-    """Check if name is database; if not, add name."""
-    data.setdefault(full_name, [])
-
-
-def update_donor_donations(name, amount, data):
-    donations_list = data.setdefault(name, [])
-    donations_list.append(amount)
+def update_donor_data(name, amount=0):
+    """Check if name is database; if not, add name and donation amount."""
+    donations_list = DATA.setdefault(name, [])
+    if amount:
+        donations_list.append(amount)
 
 
 def format_donation_amount(amount):
@@ -101,7 +98,7 @@ def format_donation_amount(amount):
     return dollar_format.format(amount)
 
 
-def print_email(name, amount):
+def format_email(name, amount):
     return EMAIL_TEMPLATE.format(name=name,
                                  amount=format_donation_amount(amount))
 
@@ -131,6 +128,7 @@ def report():
             for donor_name, donations in DATA.items()]
     rows.insert(0, make_report_header())
     rows.insert(1, '\t' + '-' * 20 * 4)
+    rows.insert(-1, '')
     menu('\n'.join(rows), None)
     return False
 
@@ -150,9 +148,11 @@ def enter_amount():
 def display_email():
     name = WORKING_DONOR_INFO['name']
     amount = WORKING_DONOR_INFO['amount']
-    update_donor_donations(name, amount, DATA)
-    email = print_email(name, amount)
+    update_donor_data(name, amount)
+    email = format_email(name, amount)
     menu(email, None)
+    WORKING_DONOR_INFO['name'] = ''
+    WORKING_DONOR_INFO['amount'] = 0
     return True
 
 
