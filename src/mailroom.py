@@ -5,8 +5,18 @@ MAIN_MENU_PATTERN = r'^(?P<send>s(end)?)|(?P<report>r(eport)?)|' + EXIT_PATTERN
 NAME_MENU_PATTERN = r'^(?P<name>[a-z]*\s[a-z]*)|(?P<list>list)|' + EXIT_PATTERN
 AMOUNT_PATTERN = r'^(?P<amount>[^0][0-9]*.?[0-9]{,2})$'
 
+EMAIL_TEMPLATE = """ 
+Dear {name},
+
+    Thank you for your donation of {amount}.  We really need it.
+
+    Sincerely,
+
+    Someone
+"""
 
 def main_menu(user_input):
+    """Match the user input from main menu."""
     match = re.match(MAIN_MENU_PATTERN, user_input, flags=re.IGNORECASE)
     if not match:
         return 'Invalid entry.'
@@ -14,6 +24,7 @@ def main_menu(user_input):
 
 
 def name_menu(user_input):
+    """"""
     match = re.match(NAME_MENU_PATTERN, user_input, flags=re.IGNORECASE)
     if not match:
         return 'Invalid name.'
@@ -38,3 +49,17 @@ def valid_amount(user_input):
 def update_donor_donations(name, amount, data):
     donations_list = data.setdefault(name, [])
     donations_list.append(amount)
+
+
+def format_donation_amount(amount):
+    """Format the donation amount into $ and decimal."""
+    dollar_format = '${:.2f}'
+    return dollar_format.format(amount)
+
+
+def print_email(name, amount):
+    print(EMAIL_TEMPLATE.format(name=name, amount=format_donation_amount(amount)))
+    return 
+
+
+def 
