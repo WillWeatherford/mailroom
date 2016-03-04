@@ -2,6 +2,7 @@
 import re
 import json
 import io
+import sys
 
 
 WORKING_DONOR_INFO = {'name': '', 'amount': 0}
@@ -56,7 +57,11 @@ DONOR_NAME, TOTAL, NUM, AVG = ('Donor Name', 'Total Donated',
                                'Donations', 'Average Donation')
 
 
-DONORS_JSON = './donors.json'
+DONORS_JSON = 'src/donors.json'
+
+USAGE = """
+Usage: mailroom takes no arguments.
+"""
 
 
 def validate_main_menu(user_input):
@@ -221,5 +226,11 @@ COMMANDS = {
 }
 
 
-if __name__ == '__main__':
+def main():
+    """Main funct."""
+    if len(sys.argv) != 1:
+        print(USAGE)
+        sys.exit(1)
+
     menu(MAIN_MENU_PROMPT, validate_main_menu)
+    sys.exit(0)

@@ -15,5 +15,10 @@ setup(name='mailroom',
       py_modules=['mailroom'],  # your python modules to include
       package_dir={'': 'src'},
       install_requires=[],
-      extras_require={'test': ['pytest', 'pytest-xdist', 'tox']}
+      extras_require={'test': ['pytest', 'pytest-xdist', 'tox']},
+      entry_points={
+          'console_scripts': [
+             "mailroom = mailroom:main"
+          ]
+      }
       )
